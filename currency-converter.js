@@ -7,14 +7,21 @@ const getExchangeRate = async (fromCurrency, toCurrency) => {
   const rate = response.data.rates;
   const euro = 1 / rate[fromCurrency];
   const exchangeRate = euro * rate[toCurrency];
+  if (isNaN(exchangeRate)) {
+    throw new Error(`Unable to get currency ${fromCurrency} and ${toCurrency}`);
+  }
   return exchangeRate;
 };
 
 const getCountries = async (toCurrency) => {
-  const response = await axios.get(
-    `https://restcountries.eu/rest/v2/currency/${toCurrency}`
-  );
-  return response.data.map((country) => console.log(country.name));
+  try {
+    const response = await axios.get(
+      `https://restcountries.eu/rest/v2/currency/${toCurrency}`
+    );
+    return response.data.map((country) => country.name);
+  } catch (e) {
+    throw new Error(`Unable to get countries that use ${toCurrency}`);
+  }
 };
 
 const convertCurrency = async (fromCurrency, toCurrency, amount) => {
@@ -24,6 +31,10 @@ const convertCurrency = async (fromCurrency, toCurrency, amount) => {
   return `${amount} ${fromCurrency} is worth ${convertedAmount} ${toCurrency}. You can spend these in the following countries: ${countries}`;
 };
 
-convertCurrency("USD", "EUR", 20).then((message) => {
-  console.log(message);
-});
+convertCurrency("USD", "INR", 20)
+  .then((message) => {
+    console.log(message);
+  })
+  .catch((e) => {
+    console.log(e.message);
+  });
