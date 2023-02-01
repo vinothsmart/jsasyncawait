@@ -10,4 +10,20 @@ const getExchangeRate = async (fromCurrency, toCurrency) => {
   return exchangeRate;
 };
 
-getExchangeRate("USD", "EUR");
+const getCountries = async (toCurrency) => {
+  const response = await axios.get(
+    `https://restcountries.eu/rest/v2/currency/${toCurrency}`
+  );
+  return response.data.map((country) => console.log(country.name));
+};
+
+const convertCurrency = async (fromCurrency, toCurrency, amount) => {
+  const exchangeRate = await getExchangeRate(fromCurrency, toCurrency);
+  const countries = await getCountries(toCurrency);
+  const convertedAmount = (amount * exchangeRate).toFixed(2);
+  return `${amount} ${fromCurrency} is worth ${convertedAmount} ${toCurrency}. You can spend these in the following countries: ${countries}`;
+};
+
+convertCurrency("USD", "EUR", 20).then((message) => {
+  console.log(message);
+});
